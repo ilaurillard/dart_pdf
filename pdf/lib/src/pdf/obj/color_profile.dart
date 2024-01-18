@@ -1,0 +1,52 @@
+import 'dart:typed_data';
+
+import '../document.dart';
+import '../format/array.dart';
+import '../format/dict.dart';
+import '../format/dict_stream.dart';
+import '../format/name.dart';
+import '../format/num.dart';
+import '../format/string.dart';
+import 'object.dart';
+
+class ColorProfile extends PdfObject<PdfDictStream> {
+
+  final Uint8List icc;
+
+  ColorProfile(PdfDocument pdfDocument, this.icc,) : super(
+    pdfDocument,
+    params: PdfDictStream(
+      compress: false,
+      encrypt: false,
+    ),
+  ) {
+    pdfDocument.catalog.colorProfile = this;
+  }
+
+  @override
+  void prepare() {
+    super.prepare();
+    params['/N'] = const PdfNum(3);
+    params.data = icc;
+  }
+
+  PdfArray outputIntents() {
+    return PdfArray<PdfDict>(
+        [
+          PdfDict(
+              {
+                '/Type': PdfName('/OutputIntent'),
+                '/S': PdfName('/GTS_PDFA1'),
+                '/OutputConditionIdentifier': PdfString(
+                    Uint8List.fromList('sRGB2014.icc'.codeUnits)),
+                '/Info': PdfString(
+                    Uint8List.fromList('sRGB2014.icc'.codeUnits)),
+                '/RegistryName': PdfString(
+                    Uint8List.fromList('http://www.color.org'.codeUnits)),
+                '/DestOutputProfile': ref(),
+              }
+          ),
+        ]
+    );
+  }
+}

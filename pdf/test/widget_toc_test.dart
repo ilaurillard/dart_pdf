@@ -44,7 +44,7 @@ void main() {
             child: Align(
                 alignment: Alignment.centerRight, child: Text(c.pageLabel))),
         build: (context) => [
-          ...Iterable<Widget>.generate(40, (index) {
+          ...Iterable<Widget>.generate(10, (index) {
             final level = (sin(index / 5) * 6).abs().toInt();
             return Column(
               children: [
@@ -75,12 +75,12 @@ void main() {
           TableOfContent(),
         ],
       ),
-      index: 1,
+      index: 0,
     );
   });
 
   tearDownAll(() async {
-    final file = File('widgets-toc.pdf');
+    final file = File('widgets-toc2.pdf');
     await file.writeAsBytes(await pdf.save());
   });
 }

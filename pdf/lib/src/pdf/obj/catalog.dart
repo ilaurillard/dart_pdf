@@ -21,6 +21,7 @@ import '../format/name.dart';
 import '../format/num.dart';
 import 'annotation.dart';
 import 'metadata.dart';
+import 'color_profile.dart';
 import 'names.dart';
 import 'object.dart';
 import 'outline.dart';
@@ -53,6 +54,9 @@ class PdfCatalog extends PdfObject<PdfDict> {
 
   /// The document metadata
   PdfMetadata? metadata;
+
+  /// An optional colorprofile output intent
+  ColorProfile? colorProfile;
 
   /// The initial page mode
   final PdfPageMode? pageMode;
@@ -144,6 +148,10 @@ class PdfCatalog extends PdfObject<PdfDict> {
       for (final w in widgets) {
         fields.add(w.ref());
       }
+    }
+
+    if (colorProfile != null) {
+      params['/OutputIntents'] = colorProfile!.outputIntents();
     }
   }
 }
