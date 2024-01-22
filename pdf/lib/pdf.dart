@@ -46,4 +46,4 @@ export 'src/pdf/point.dart';
 export 'src/pdf/raster.dart';
 export 'src/pdf/rect.dart';
 export 'src/pdf/obj/color_profile.dart';
-export 'src/pdf/obj/zugferd.dart';
+export 'src/pdf/obj/attached_files.dart';
