@@ -658,6 +658,7 @@ class RichTextContext extends WidgetContext {
       '$runtimeType Offset: $startOffset -> $endOffset  Span: $spanStart -> $spanEnd';
 }
 
+// ilja, custom
 typedef List<String> Hyphenation(String word);
 
 class RichText extends Widget with SpanningWidget {
@@ -670,7 +671,7 @@ class RichText extends Widget with SpanningWidget {
     this.textScaleFactor = 1.0,
     this.maxLines,
     this.overflow = TextOverflow.visible,
-    this.hyphenation,
+    this.hyphenation, // ilja, custom
   });
 
   static bool debug = false;
@@ -952,6 +953,7 @@ class RichText extends Widget with SpanningWidget {
               if (_softWrap &&
                   offsetX + metrics.width > constraintWidth + 0.00001) {
 
+                // ilja, custom
                 if (hyphenation != null) {
                   List<String> syllables = hyphenation!(word);
                   if (syllables.length > 1) {
