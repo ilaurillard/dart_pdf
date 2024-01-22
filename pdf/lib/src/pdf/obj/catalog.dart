@@ -56,6 +56,7 @@ class PdfCatalog extends PdfObject<PdfDict> {
   PdfMetadata? metadata;
 
   /// An optional colorprofile output intent
+  /// ilja, custom
   ColorProfile? colorProfile;
 
   /// The initial page mode
