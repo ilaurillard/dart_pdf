@@ -22,6 +22,7 @@ import '../format/num.dart';
 import 'annotation.dart';
 import 'metadata.dart';
 import 'color_profile.dart';
+import 'attached_files.dart';
 import 'names.dart';
 import 'object.dart';
 import 'outline.dart';
@@ -58,6 +59,10 @@ class PdfCatalog extends PdfObject<PdfDict> {
   /// An optional colorprofile output intent
   /// ilja, custom
   ColorProfile? colorProfile;
+
+  /// An optional colorprofile output intent
+  /// ilja, custom
+  AttachedFiles? attached;
 
   /// The initial page mode
   final PdfPageMode? pageMode;
@@ -97,6 +102,12 @@ class PdfCatalog extends PdfObject<PdfDict> {
     // the Names object
     if (names != null) {
       params['/Names'] = names!.ref();
+    }
+
+    // TODO what to do, if /Names is already occupied?
+    if (attached != null && attached!.files.isNotEmpty) {
+      params['/Names'] = attached!.catalogNames();
+      params['/AF'] = attached!.catalogAF();
     }
 
     // the PageLabels object
