@@ -325,6 +325,7 @@ class FacturxRdf {
   }
 }
 
+/// try to make UTC stamps
 class _DateFormat {
   String format({
     required DateTime dt,
