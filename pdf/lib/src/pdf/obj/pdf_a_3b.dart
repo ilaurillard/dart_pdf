@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
 
 import '../document.dart';
@@ -18,7 +17,6 @@ import '../format/string.dart';
 import 'object.dart';
 
 class AttachedFiles {
-
   AttachedFiles(
     PdfDocument pdfDocument,
     Map<String, String> files,
@@ -31,10 +29,12 @@ class AttachedFiles {
         fileName,
         content,
       );
-      this.files.add(AttachedFileSpec(
-            pdfDocument,
-            file,
-          ));
+      this.files.add(
+            AttachedFileSpec(
+              pdfDocument,
+              file,
+            ),
+          );
     }
     names = AttachedFileNames(
       pdfDocument,
@@ -42,6 +42,7 @@ class AttachedFiles {
     );
     pdfDocument.catalog.attached = this;
   }
+
   final List<AttachedFileSpec> files = [];
 
   late final AttachedFileNames names;
@@ -62,7 +63,6 @@ class AttachedFiles {
 }
 
 class AttachedFileNames extends PdfObject<PdfDict> {
-
   AttachedFileNames(
     PdfDocument pdfDocument,
     this.files,
@@ -84,7 +84,6 @@ class AttachedFileNames extends PdfObject<PdfDict> {
 }
 
 class AttachedFileSpec extends PdfObject<PdfDict> {
-
   AttachedFileSpec(
     PdfDocument pdfDocument,
     this.file,
@@ -113,7 +112,6 @@ class AttachedFileSpec extends PdfObject<PdfDict> {
 }
 
 class AttachedFile extends PdfObject<PdfDictStream> {
-
   AttachedFile(
     PdfDocument pdfDocument,
     this.fileName,
@@ -133,7 +131,7 @@ class AttachedFile extends PdfObject<PdfDictStream> {
   void prepare() {
     super.prepare();
 
-    final String modDate = DateFormat("yyyyMMddHHmmss").format(DateTime.now());
+    final modDate = dtFormat(dt: DateTime.now());
     params['/Type'] = const PdfName('/EmbeddedFile');
     params['/Subtype'] = const PdfName('/application/octet-stream');
     params['/Params'] = PdfDict({
@@ -148,24 +146,22 @@ class AttachedFile extends PdfObject<PdfDictStream> {
 }
 
 class PdfRaw extends PdfDataType {
-
   const PdfRaw(
     this.nr,
     this.spec,
   );
+
   final int nr;
   final AttachedFileSpec spec;
 
   @override
   void output(PdfObjectBase o, PdfStream s, [int? indent]) {
-    s.putString(
-        '(${nr.toString().padLeft(3, '0')}) ${spec.ref()}');
+    s.putString('(${nr.toString().padLeft(3, '0')}) ${spec.ref()}');
   }
 }
 
 // ilja, custom
 class ColorProfile extends PdfObject<PdfDictStream> {
-
   ColorProfile(
     PdfDocument pdfDocument,
     this.icc,
@@ -178,6 +174,7 @@ class ColorProfile extends PdfObject<PdfDictStream> {
         ) {
     pdfDocument.catalog.colorProfile = this;
   }
+
   final Uint8List icc;
 
   @override
@@ -204,7 +201,6 @@ class ColorProfile extends PdfObject<PdfDictStream> {
 }
 
 class PdfaRdf {
-
   PdfaRdf({
     this.title,
     this.author,
@@ -217,6 +213,7 @@ class PdfaRdf {
   }) {
     this.creationDate = creationDate ?? DateTime.now();
   }
+
   final String? title;
   final String? author;
   final String? creator;
@@ -227,17 +224,17 @@ class PdfaRdf {
   final String invoiceRdf;
 
   XmlDocument? create() {
-    String createDate =
-    DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(creationDate);
+    var createDate =
+        dtFormat(dt: creationDate, asIso: true);
     final offset = creationDate.timeZoneOffset;
     final hours =
-    offset.inHours > 0 ? offset.inHours : 1; // For fixing divide by 0
+        offset.inHours > 0 ? offset.inHours : 1; // For fixing divide by 0
     if (!offset.isNegative) {
       createDate =
-      "$createDate+${offset.inHours.toString().padLeft(2, '0')}:${(offset.inMinutes % (hours * 60)).toString().padLeft(2, '0')}";
+          "$createDate+${offset.inHours.toString().padLeft(2, '0')}:${(offset.inMinutes % (hours * 60)).toString().padLeft(2, '0')}";
     } else {
       createDate =
-      "$createDate-${(-offset.inHours).toString().padLeft(2, '0')}:${(offset.inMinutes % (hours * 60)).toString().padLeft(2, '0')}";
+          "$createDate-${(-offset.inHours).toString().padLeft(2, '0')}:${(offset.inMinutes % (hours * 60)).toString().padLeft(2, '0')}";
     }
 
     return XmlDocument.parse('''
@@ -327,4 +324,23 @@ class FacturxRdf {
 </rdf:Description>
 ''';
   }
+}
+
+String dtFormat({
+  required DateTime dt,
+  bool asIso = false,
+}) {
+  final year = dt.year.toString().padLeft(4, '0');
+  final month = dt.month.toString().padLeft(2, '0');
+  final day = dt.day.toString().padLeft(2, '0');
+  final hour = dt.hour.toString().padLeft(2, '0');
+  final minute = dt.minute.toString().padLeft(2, '0');
+  final second = dt.second.toString().padLeft(2, '0');
+
+  if (asIso) {
+    // "yyyy-MM-dd'T'HH:mm:ss"
+    return "$year-$month-$day'T'$hour:$minute:$second";
+  }
+  // "yyyyMMddHHmmss"
+  return '$year$month$day$hour$minute$second';
 }
