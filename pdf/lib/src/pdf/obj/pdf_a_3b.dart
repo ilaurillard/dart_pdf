@@ -339,7 +339,7 @@ String dtFormat({
 
   if (asIso) {
     // "yyyy-MM-dd'T'HH:mm:ss"
-    return "$year-$month-$day'T'$hour:$minute:$second";
+    return '$year-$month-${day}T$hour:$minute:$second';
   }
   // "yyyyMMddHHmmss"
   return '$year$month$day$hour$minute$second';
