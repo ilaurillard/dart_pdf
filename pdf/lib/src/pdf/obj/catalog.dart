@@ -21,13 +21,12 @@ import '../format/name.dart';
 import '../format/num.dart';
 import 'annotation.dart';
 import 'metadata.dart';
-import 'color_profile.dart';
-import 'attached_files.dart';
 import 'names.dart';
 import 'object.dart';
 import 'outline.dart';
 import 'page_label.dart';
 import 'page_list.dart';
+import 'pdf_a_3b.dart';
 
 /// Pdf Catalog object
 class PdfCatalog extends PdfObject<PdfDict> {
@@ -104,7 +103,7 @@ class PdfCatalog extends PdfObject<PdfDict> {
       params['/Names'] = names!.ref();
     }
 
-    // TODO what to do, if /Names is already occupied?
+    // ??? what to do, if /Names is already occupied?
     if (attached != null && attached!.files.isNotEmpty) {
       params['/Names'] = attached!.catalogNames();
       params['/AF'] = attached!.catalogAF();
