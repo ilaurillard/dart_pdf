@@ -24,74 +24,75 @@ class AttachedFiles {
     for (var fileName in files.keys) {
       final content = files[fileName]!;
 
-      final file = AttachedFile(
-        pdfDocument,
-        fileName,
-        content,
+      _files.add(
+        _AttachedFileSpec(
+          pdfDocument,
+          _AttachedFile(
+            pdfDocument,
+            fileName,
+            content,
+          ),
+        ),
       );
-      this.files.add(
-            AttachedFileSpec(
-              pdfDocument,
-              file,
-            ),
-          );
     }
-    names = AttachedFileNames(
+    _names = _AttachedFileNames(
       pdfDocument,
-      this.files,
+      _files,
     );
     pdfDocument.catalog.attached = this;
   }
 
-  final List<AttachedFileSpec> files = [];
+  final List<_AttachedFileSpec> _files = [];
 
-  late final AttachedFileNames names;
+  late final _AttachedFileNames _names;
+
+  bool get isNotEmpty => _files.isNotEmpty;
 
   PdfDict catalogNames() {
     return PdfDict({
-      '/EmbeddedFiles': names.ref(),
+      '/EmbeddedFiles': _names.ref(),
     });
   }
 
   PdfArray catalogAF() {
     final tmp = <PdfIndirect>[];
-    for (var spec in files) {
+    for (var spec in _files) {
       tmp.add(spec.ref());
     }
     return PdfArray(tmp);
   }
 }
 
-class AttachedFileNames extends PdfObject<PdfDict> {
-  AttachedFileNames(
+class _AttachedFileNames extends PdfObject<PdfDict> {
+  _AttachedFileNames(
     PdfDocument pdfDocument,
-    this.files,
+    this._files,
   ) : super(
           pdfDocument,
           params: PdfDict(),
         );
-  final List<AttachedFileSpec> files;
+  final List<_AttachedFileSpec> _files;
 
   @override
   void prepare() {
     super.prepare();
     params['/Names'] = PdfArray(
       [
-        PdfRaw(0, files.first),
+        _PdfRaw(0, _files.first),
       ],
     );
   }
 }
 
-class AttachedFileSpec extends PdfObject<PdfDict> {
-  AttachedFileSpec(
+class _AttachedFileSpec extends PdfObject<PdfDict> {
+  _AttachedFileSpec(
     PdfDocument pdfDocument,
-    this.file,
+    this._file,
   ) : super(
           pdfDocument,
           params: PdfDict(),
         );
-  final AttachedFile file;
+  final _AttachedFile _file;
 
   @override
   void prepare() {
@@ -99,20 +100,20 @@ class AttachedFileSpec extends PdfObject<PdfDict> {
 
     params['/Type'] = const PdfName('/Filespec');
     params['/F'] = PdfString(
-      Uint8List.fromList(file.fileName.codeUnits),
+      Uint8List.fromList(_file.fileName.codeUnits),
     );
     params['/UF'] = PdfString(
-      Uint8List.fromList(file.fileName.codeUnits),
+      Uint8List.fromList(_file.fileName.codeUnits),
     );
     params['/EF'] = PdfDict({
-      '/F': file.ref(),
+      '/F': _file.ref(),
     });
     params['/AFRelationship'] = const PdfName('/Unspecified');
   }
 }
 
-class AttachedFile extends PdfObject<PdfDictStream> {
-  AttachedFile(
+class _AttachedFile extends PdfObject<PdfDictStream> {
+  _AttachedFile(
     PdfDocument pdfDocument,
     this.fileName,
     this.content,
@@ -131,7 +132,7 @@ class AttachedFile extends PdfObject<PdfDictStream> {
   void prepare() {
     super.prepare();
 
-    final modDate = dtFormat(dt: DateTime.now());
+    final modDate = _DateFormat().format(dt: DateTime.now());
     params['/Type'] = const PdfName('/EmbeddedFile');
     params['/Subtype'] = const PdfName('/application/octet-stream');
     params['/Params'] = PdfDict({
@@ -145,14 +146,14 @@ class AttachedFile extends PdfObject<PdfDictStream> {
   }
 }
 
-class PdfRaw extends PdfDataType {
-  const PdfRaw(
+class _PdfRaw extends PdfDataType {
+  const _PdfRaw(
     this.nr,
     this.spec,
   );
 
   final int nr;
-  final AttachedFileSpec spec;
+  final _AttachedFileSpec spec;
 
   @override
   void output(PdfObjectBase o, PdfStream s, [int? indent]) {
@@ -160,7 +161,6 @@ class PdfRaw extends PdfDataType {
   }
 }
 
-// ilja, custom
 class ColorProfile extends PdfObject<PdfDictStream> {
   ColorProfile(
     PdfDocument pdfDocument,
@@ -224,8 +224,7 @@ class PdfaRdf {
   final String invoiceRdf;
 
   XmlDocument? create() {
-    var createDate =
-        dtFormat(dt: creationDate, asIso: true);
+    var createDate = _DateFormat().format(dt: creationDate, asIso: true);
     final offset = creationDate.timeZoneOffset;
     final hours =
         offset.inHours > 0 ? offset.inHours : 1; // For fixing divide by 0
@@ -326,21 +325,23 @@ class FacturxRdf {
   }
 }
 
-String dtFormat({
-  required DateTime dt,
-  bool asIso = false,
-}) {
-  final year = dt.year.toString().padLeft(4, '0');
-  final month = dt.month.toString().padLeft(2, '0');
-  final day = dt.day.toString().padLeft(2, '0');
-  final hour = dt.hour.toString().padLeft(2, '0');
-  final minute = dt.minute.toString().padLeft(2, '0');
-  final second = dt.second.toString().padLeft(2, '0');
+class _DateFormat {
+  String format({
+    required DateTime dt,
+    bool asIso = false,
+  }) {
+    final year = dt.year.toString().padLeft(4, '0');
+    final month = dt.month.toString().padLeft(2, '0');
+    final day = dt.day.toString().padLeft(2, '0');
+    final hour = dt.hour.toString().padLeft(2, '0');
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final second = dt.second.toString().padLeft(2, '0');
 
-  if (asIso) {
-    // "yyyy-MM-dd'T'HH:mm:ss"
-    return '$year-$month-${day}T$hour:$minute:$second';
+    if (asIso) {
+      // "yyyy-MM-dd'T'HH:mm:ss"
+      return '$year-$month-${day}T$hour:$minute:$second';
+    }
+    // "yyyyMMddHHmmss"
+    return '$year$month$day$hour$minute$second';
   }
-  // "yyyyMMddHHmmss"
-  return '$year$month$day$hour$minute$second';
 }

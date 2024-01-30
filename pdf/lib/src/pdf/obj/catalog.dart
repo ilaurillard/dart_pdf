@@ -55,12 +55,10 @@ class PdfCatalog extends PdfObject<PdfDict> {
   /// The document metadata
   PdfMetadata? metadata;
 
-  /// An optional colorprofile output intent
-  /// ilja, custom
+  /// Colorprofile output intent (Pdf/A)
   ColorProfile? colorProfile;
 
-  /// An optional colorprofile output intent
-  /// ilja, custom
+  /// Attached files (Pdf/A 3b)
   AttachedFiles? attached;
 
   /// The initial page mode
@@ -104,7 +102,7 @@ class PdfCatalog extends PdfObject<PdfDict> {
     }
 
     // ??? what to do, if /Names is already occupied?
-    if (attached != null && attached!.files.isNotEmpty) {
+    if (attached != null && attached!.isNotEmpty) {
       params['/Names'] = attached!.catalogNames();
       params['/AF'] = attached!.catalogAF();
     }
